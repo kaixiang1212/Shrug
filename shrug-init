@@ -1,6 +1,7 @@
 #!/bin/dash
 
-if test -d .shrug
+# Check if .shrug exists
+if [ -d ".shrug" ]
 then
     echo "$0: error: .shrug already exists" >> /dev/stderr
     exit

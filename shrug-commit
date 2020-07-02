@@ -2,6 +2,7 @@
 
 IFS="
 "
+
 # Constants
 commit_dir=".shrug/commit"
 index_dir=".shrug/index"
@@ -10,14 +11,21 @@ shrug_cmp="shrug-cmp"
 usage="usage: shrug-commit [-a] -m commit-message"
 
 a_flag=0
-# Check shrug repo exist
 
+# Check if .shrug exists
+if [ -d ".shrug" ]
+then
+    echo "$0: error: no .shrug directory containing shrug repository exists" >> /dev/stderr
+    exit 1;
+fi
 
-if [ $# -lt 2 ]         # Check argument number
+# Check argument number
+if [ $# -lt 2 ]
 then
     echo $usage
-    exit
-else                    # Process argument
+    exit 
+# Process Arguments
+else
     while [ $1 ]
     do 
         if echo $1 | egrep "^-m$" > /dev/null && echo $2 | egrep -v "^-.+" > /dev/null
