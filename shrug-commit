@@ -1,0 +1,70 @@
+#!/bin/dash
+
+IFS="
+"
+# Constants
+commit_dir=".shrug/commit"
+index_dir=".shrug/index"
+log_file=".shrug/log"
+shrug_cmp="shrug-cmp"
+usage="usage: shrug-commit [-a] -m commit-message"
+
+a_flag=0
+# Check shrug repo exist
+
+
+if [ $# -lt 2 ]         # Check argument number
+then
+    echo $usage
+    exit
+else                    # Process argument
+    while [ $1 ]
+    do 
+        if echo $1 | egrep "^-m$" > /dev/null && echo $2 | egrep -v "^-.+" > /dev/null
+        then
+            msg=$2
+            shift
+        elif echo $1 | egrep "^-a$" > /dev/null
+        then
+            aflag=1
+        else
+            echo $usage
+            exit
+        fi
+        shift
+    done
+fi
+
+# Check if repo has previous commit
+commit_no=0
+if [ ! -d $commit_dir ]
+then
+    mkdir "$commit_dir"
+else
+    commit_no=`cat $log_file | tail -1 | cut -d " " -f1`
+    commit_no=$(($commit_no+1))
+fi
+
+# echo "$commit_no $msg" >> ".shrug/log.txt"
+if [ $commit_no -ne 0 ]; then           # Not initial commit
+    differ=` $shrug_cmp "$index_dir" "$commit_dir/$(($commit_no-1))" `
+    if [ -n "$differ" ]
+    then
+        for line in $differ
+        do
+            file=` echo $line | cut -d " " -f2 `
+        done
+        cp -r "$index_dir/." "$commit_dir/$commit_no"
+        echo "$commit_no $msg" >> "$log_file"
+        echo "Committed as commit $commit_no"
+    else
+        echo "nothing to commit"
+    fi
+else                            # Initial commit
+    cp -r "$index_dir/." "$commit_dir/$commit_no"
+    echo "$commit_no $msg" >> "$log_file"
+    echo "Committed as commit $commit_no"
+fi
+
+# cp -r ".shrug/index/." ".shrug/commit/$commit" &&
+# echo "Committed as commit $commit_no"

@@ -1,0 +1,36 @@
+#!/bin/dash
+
+IFS="
+"
+
+if [ $# -ne 2 ]
+then
+    echo "Invalid Argument" >> /dev/stderr
+elif [ ! -d $1 ]
+then
+    echo "$0: error: directory '$1' do not exist" >> /dev/stderr
+elif [ ! -d $2 ]
+then
+    echo "$0: error: directory '$2' do not exist" >> /dev/stderr
+else
+    out=`diff -q $1 $2`     # Support for subdirectory -r
+    for line in $out; do
+        if echo "$line" | egrep "Files (.*) and (.*) differ" > /dev/null; then
+            # File changed
+            file=`echo $line | cut -d " " -f2 | rev | cut -d "/" -f1 | rev`
+            echo "~ $file"
+            continue
+        elif echo "$line" | egrep "Only in (.*): " > /dev/null; then
+            # File added / removed
+            directory=`echo $line | cut -d " " -f3`
+            file=`echo $line | cut -d " " -f4`
+            if echo "$directory" | egrep "$1" > /dev/null; then
+                # File exist in directory $1 only
+                echo "+ $file"
+            else
+                # File exist in directory $1 only
+                echo "- $file"
+            fi
+        fi
+    done
+fi

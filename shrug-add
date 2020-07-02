@@ -1,0 +1,41 @@
+#!/bin/dash
+
+if [ $# -eq 0 ]
+then
+    echo "usage: shrug-add <filenames>"
+    exit
+elif [ ! -d ".shrug" ]
+then
+    echo "$0: error: no .shrug directory containing shrug repository exists"
+    exit
+fi
+
+while [ $1 ]
+do      #Start with not [-./] follow by more than 1 char : Optional : (.)
+    if echo $1 | egrep "^[^-./][A-Za-z0-9]*(.[A-Za-z0-9]+)*" > /dev/null # Valid Filename
+    then
+        if [ -f $1 ]                                            # File Exists
+        then
+            if [ ! -d ".shrug/index" ]
+            then
+                mkdir ".shrug/index"
+            fi
+            cp $1 ".shrug/index/"
+        else                                                    # File not Exists
+            echo "$0: error: can not open '$1'"
+            exit
+        fi
+    elif echo $1 | egrep "^(-)+[A-Za-z]*" > /dev/null              # Flag Specified
+    then
+        echo "usage: shrug-add <filenames>"
+        exit
+    else
+        echo "$0: error: invalid filename '$1'"                 # Other Cases (Invalid filename)
+        exit
+    fi
+    shift
+done
+
+
+# TODO: Unhandled cases
+# --

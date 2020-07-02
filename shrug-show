@@ -1,0 +1,40 @@
+#!/bin/dash
+
+usage="usage: shrug-show <commit>:<filename>"
+
+if echo $1 | egrep ":" > /dev/null
+then
+    commit=`echo $1 | cut -d ":" -f1`
+    file=`echo $1 | cut -d ":" -f2`
+    # Check filename
+    if echo $file | egrep "^[\.-]" > /dev/null || echo $file | egrep -v "^[A-Za-z\.0-9-]+$" > /dev/null
+    then
+        echo "$0: error: invalid filename '$file'"
+        exit
+    fi
+    # Check commit -> default to index
+    if [ ! $commit ]
+    then
+        if [ -f ".shrug/index/$file" ]
+        then
+            cat ".shrug/index/$file"
+        else
+            echo "$0: error: '$file' not found in index"
+        fi
+    else
+    # Check commit and file exist
+        if [ -d ".shrug/commit/$commit" ]
+        then
+            if [ -f ".shrug/commit/$commit/$file" ]
+            then
+                cat ".shrug/commit/$commit/$file"
+            else
+                echo "$0: error: '$file' not found in commit $commit"
+            fi
+        else
+            echo "$0: error: unknown commit '$commit'"
+        fi
+    fi
+else
+    echo $usage
+fi
