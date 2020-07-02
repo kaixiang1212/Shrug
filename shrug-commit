@@ -7,10 +7,9 @@ IFS="
 commit_dir=".shrug/commit"
 index_dir=".shrug/index"
 log_file=".shrug/log"
-shrug_cmp="shrug-cmp"
+shrug_cmp="./shrug-cmp"
+shrug_add="./shrug-add"
 usage="usage: shrug-commit [-a] -m commit-message"
-
-a_flag=0
 
 # Check if .shrug exists
 if [ ! -d ".shrug" ]
@@ -34,7 +33,13 @@ else
             shift
         elif echo $1 | egrep "^-a$" > /dev/null
         then
-            aflag=1
+            for file in `find $index_dir -type f`
+            do
+                filename=`echo $file | rev | cut -d "/" -f1 | rev`
+                echo "$filename"
+                `$shrug_add $filename`
+                echo "update $file"
+            done
         else
             echo $usage
             exit

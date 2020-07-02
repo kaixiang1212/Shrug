@@ -10,7 +10,7 @@ log_file=".shrug/log"
 if [ ! -d ".shrug" ]; then
     echo "$0: error: no .shrug directory containing shrug repository exists" >> /dev/stderr
     exit 1;
-elif [ ! -d $log_file ]; then
+elif [ ! -f $log_file ]; then
     echo "$0: error: your repository does not have any commits yet" >> /dev/stderr
     exit 1;
 fi
