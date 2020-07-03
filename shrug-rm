@@ -4,8 +4,8 @@ IFS=" "
 
 usage="usage: shrug-rm [--force] [--cached] <filenames>"
 index_dir=".shrug/index"
-force=0
-cached=0
+force_flag=0
+cached_flag=0
 
 
 # Check if .shrug exists
@@ -20,7 +20,7 @@ files=""
 # Check argument number
 if [ $# -lt 1 ]
 then
-    echo $usage
+    echo "$usage"
     exit 
 # Process Flags
 else
@@ -28,13 +28,13 @@ else
     do
         if echo $argv | egrep "^--force$" > /dev/null
         then
-            force=1
+            force_flag=1
         elif echo $argv | egrep "^--cached$" > /dev/null
         then
-            cached=1
+            cached_flag=1
         elif echo $argv | egrep "^-" > /dev/null
         then
-            echo $usage
+            echo "$usage"
             exit
         elif [ -n "$files" ]
         then
@@ -47,7 +47,7 @@ fi
 
 if [ -z "$files" ]
 then
-    echo $usage
+    echo "$usage"
     exit
 fi
 
@@ -58,16 +58,20 @@ do
     then
         # Check if file inside index is different from file in directory
         differ=` diff $file $index_dir/$file `
-        if [ -n "$differ" ] && [ $force -ne 1 ]
+        if [ -n "$differ" ] && [ $force_flag -ne 1 ]
         then
             echo "$0: error: '$file' in repository is different to working file" >> /dev/stderr
             exit 1
+        elif [ -n `diff $index_dir/$file $commit_dir/$file` ] && [ $cached_flag -ne 1 ]
+        then
+            echo "$0: error: '$file' has changes staged in the index" >> /dev/stderr
+            exit 1
         fi
 
-        rm ".shrug/index/$file"
+        rm "$index_dir/$file"
 
         # Remove file on current directory if --cached is not specified
-        if [ $cached -eq 0 ]
+        if [ $cached_flag -ne 1 ]
         then
             rm "$file"
         fi
