@@ -6,6 +6,7 @@ usage="usage: shrug-rm [--force] [--cached] <filenames>"
 index_dir=".shrug/index"
 force_flag=0
 cached_flag=0
+log_file=".shrug/log"
 commit_dir=".shrug/commit"
 
 
@@ -70,12 +71,17 @@ do
         then
             echo "$0: error: '$file' in repository is different to working file" >> /dev/stderr
             exit 1
-        elif [ -n "$commit_no" ] && [ -n `diff $index_dir/$file $commit_dir/$commit_no/$file` ] && [ $force_flag -ne 1 ]
+        elif [ -n "$commit_no" ] \
+            && [ $cached_flag -ne 1 ] \
+            && [ $force_flag -ne 1 ]
         then
-            echo "$0: error: '$file' has changes staged in the index" >> /dev/stderr
-            exit 1
+            if [ ! -f "$commit_dir/$commit_no/$file" ] \
+                || [ -n `diff $index_dir/$file $commit_dir/$commit_no/$file` ]
+            then
+                echo "$0: error: '$file' has changes staged in the index" >> /dev/stderr
+                exit 1
+            fi
         fi
-
         rm "$index_dir/$file"
 
         # Remove file on current directory if --cached is not specified
