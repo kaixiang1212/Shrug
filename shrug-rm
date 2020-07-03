@@ -67,7 +67,10 @@ do
     then
         # Check if file inside index is different from file in directory
         differ=` diff $file $index_dir/$file `
-        if [ -n "$differ" ] && [ $force_flag -ne 1 ]
+        if [ -z "$differ" ] || [ $force_flag -eq 1 ]
+        then
+            continue
+        elif [ -n "$differ" ] && [ $force_flag -ne 1 ]
         then
             echo "$0: error: '$file' in repository is different to working file" >> /dev/stderr
             exit 1
