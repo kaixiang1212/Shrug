@@ -9,7 +9,7 @@ cached_flag=0
 commit_dir=".shrug/commit"
 
 
-commit_no=-1
+commit_no=""
 if [ -d $commit_dir ]
 then
     commit_no=`cat $log_file | tail -1 | cut -d " " -f1`
@@ -70,7 +70,7 @@ do
         then
             echo "$0: error: '$file' in repository is different to working file" >> /dev/stderr
             exit 1
-        elif [ $commit_no -ne -1 ] && [ -n `diff $index_dir/$file $commit_dir/$commit_no/$file` ] && [ $cached_flag -ne 1 ]
+        elif [ -n "$commit_no" ] && [ -n `diff $index_dir/$file $commit_dir/$commit_no/$file` ] && [ $force_flag -ne 1 ]
         then
             echo "$0: error: '$file' has changes staged in the index" >> /dev/stderr
             exit 1
