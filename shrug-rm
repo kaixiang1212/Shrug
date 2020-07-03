@@ -1,0 +1,78 @@
+#!/bin/dash
+
+IFS=" "
+
+usage="usage: shrug-rm [--force] [--cached] <filenames>"
+index_dir=".shrug/index"
+force=0
+cached=0
+
+
+# Check if .shrug exists
+if [ ! -d ".shrug" ]
+then
+    echo "$0: error: no .shrug directory containing shrug repository exists" >> /dev/stderr
+    exit 1;
+fi
+
+files=""
+
+# Check argument number
+if [ $# -lt 1 ]
+then
+    echo $usage
+    exit 
+# Process Flags
+else
+    for argv in $@
+    do
+        if echo $argv | egrep "^--force$" > /dev/null
+        then
+            force=1
+        elif echo $argv | egrep "^--cached$" > /dev/null
+        then
+            cached=1
+        elif echo $argv | egrep "^-" > /dev/null
+        then
+            echo $usage
+            exit
+        elif [ -n "$files" ]
+        then
+            files=` echo "$files $argv" `
+        else 
+            files="$argv"
+        fi
+    done
+fi
+
+if [ -z "$files" ]
+then
+    echo $usage
+    exit
+fi
+
+for file in $files
+do
+    # check if file exists in index
+    if [ -f "$index_dir/$file" ]
+    then
+        # Check if file inside index is different from file in directory
+        differ=` diff $file $index_dir/$file `
+        if [ -n "$differ" ] && [ $force -ne 1 ]
+        then
+            echo "$0: error: '$file' in repository is different to working file" >> /dev/stderr
+            exit 1
+        fi
+
+        rm ".shrug/index/$file"
+
+        # Remove file on current directory if --cached is not specified
+        if [ $cached -eq 0 ]
+        then
+            rm "$file"
+        fi
+    else
+        echo "$0: error: '$file' is not in the shrug repository" >> /dev/stderr
+        exit 1;
+    fi
+done
