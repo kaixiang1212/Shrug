@@ -1,6 +1,6 @@
 #!/bin/dash
 
-index_dir="/shrug/index"
+index_dir=".shrug/index"
 
 # Check if .shrug exists
 if [ ! -d ".shrug" ]
