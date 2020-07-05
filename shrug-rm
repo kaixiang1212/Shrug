@@ -3,15 +3,13 @@
 IFS=" "
 
 usage="usage: shrug-rm [--force] [--cached] <filenames>"
-index_dir=".shrug/index"
 force_flag=0
 cached_flag=0
 log_file=".shrug/log"
-commit_dir=".shrug/commit"
 
 
 commit_no=""
-if [ -d $commit_dir ]
+if [ -d .shrug/commit ]
 then
     commit_no=`cat $log_file | tail -1 | cut -d " " -f1`
 fi
@@ -63,32 +61,30 @@ fi
 for file in $files
 do
     # check if file exists in index
-    if [ -f "$index_dir/$file" ]
+    if [ -f ".shrug/index/$file" ]
     then
         # Check if file inside index is different from file in directory
-        differ=` diff $file $index_dir/$file `
-        if [ -z "$differ" ] || [ $force_flag -eq 1 ]
+        # Check if file inside index is different from last commit
+        if [ -z $commit_no ]
+        then 
+            echo "$0: error: your repository does not have any commits yet" >> /dev/stderr
+            exit 1;
+        elif [ $force_flag -eq 0 ] && [ $cached_flag -eq 0 ]
         then
-            continue
-        elif [ -n "$differ" ] && [ $force_flag -ne 1 ]
-        then
-            echo "$0: error: '$file' in repository is different to working file" >> /dev/stderr
-            exit 1
-        elif [ -n "$commit_no" ] \
-            && [ $cached_flag -ne 1 ] \
-            && [ $force_flag -ne 1 ]
-        then
-            if [ ! -f "$commit_dir/$commit_no/$file" ] \
-                || [ -n `diff $index_dir/$file $commit_dir/$commit_no/$file` ]
+            if $(`shrug-diff .shrug/index/$file $file`)
+            then
+                echo "$0: error: '$file' in repository is different to working file" >> /dev/stderr
+                exit 1
+            elif $(`shrug-diff .shrug/index/$file .shrug/commit/$commit_no/$file`)
             then
                 echo "$0: error: '$file' has changes staged in the index" >> /dev/stderr
                 exit 1
             fi
         fi
-        rm "$index_dir/$file"
+        rm ".shrug/index/$file"
 
         # Remove file on current directory if --cached is not specified
-        if [ $cached_flag -ne 1 ]
+        if [ $cached_flag -ne 1 ] && [ -f "$file" ]
         then
             rm "$file"
         fi
