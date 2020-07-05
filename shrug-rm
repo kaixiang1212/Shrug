@@ -73,11 +73,27 @@ do
         then
             if $(`shrug-diff .shrug/index/$file $file`)
             then
-                echo "$0: error: '$file' in repository is different to working file" >> /dev/stderr
-                exit 1
+                if [ -f .shrug/commit/$commit_no/$file ] \
+                    && $(`shrug-diff ".shrug/index/$file" ".shrug/commit/$commit_no/$file"`)
+                then
+                    echo "$0: error: '$file' in index is different to both working file and repository" >> /dev/stderr
+                    exit 1
+                else
+                    echo "$0: error: '$file' in repository is different to working file" >> /dev/stderr
+                    exit 1
+                fi
             elif $(`shrug-diff .shrug/index/$file .shrug/commit/$commit_no/$file`)
             then
                 echo "$0: error: '$file' has changes staged in the index" >> /dev/stderr
+                exit 1
+            fi
+        elif [ $cached_flag -eq 1 ]
+        then
+            if $(`shrug-diff .shrug/index/$file $file`) \
+                && [ -f .shrug/commit/$commit_no/$file ] \
+                && $(`shrug-diff ".shrug/index/$file" ".shrug/commit/$commit_no/$file"`)
+            then
+                echo "$0: error: '$file' in index is different to both working file and repository" >> /dev/stderr
                 exit 1
             fi
         fi
