@@ -87,7 +87,7 @@ do
                 echo "$0: error: '$file' has changes staged in the index" >> /dev/stderr
                 exit 1
             fi
-        elif [ $cached_flag -eq 1 ]
+        elif [ $cached_flag -eq 1 ] && [ $force_flag -eq 0 ]
         then
             if $(`shrug-diff .shrug/index/$file $file`) \
                 && [ -f .shrug/commit/$commit_no/$file ] \

@@ -14,20 +14,22 @@ working_dir_files="`find . -maxdepth 1 -type f | rev | cut -d "/" -f1 | rev`"
 
 all_files=`echo "$index_files\n$commit_files\n$working_dir_files" | sort | uniq`
 
-
+# Process each file
 for file in $all_files
 do
-    # Debug
     in_working_dir="`find . -maxdepth 1 -name "$file"`"
     in_index="`find .shrug/index -maxdepth 1 -name "$file" -type f`"
     in_latest_commit="`find .shrug/commit/$commit_no -maxdepth 1 -name "$file" -type f`"
 
-    if [ -z "$in_working_dir" ]         # ! working directory
+    # ! working directory
+    if [ -z "$in_working_dir" ]
     then
-        if [ -z "$in_index" ]           # ! working directory | ! index
+        # ! working directory | ! index
+        if [ -z "$in_index" ]
         then
             echo "$file - deleted"
-        else                            # ! working dir | index
+        # ! working dir | index
+        else
             echo "$file - file deleted"
         fi
     elif [ -n "$in_index" ]
