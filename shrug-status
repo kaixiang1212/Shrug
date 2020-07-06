@@ -1,0 +1,68 @@
+#!/bin/dash
+
+# Commit Number
+commit_no=""
+if [ -d .shrug/commit ]
+then
+    commit_no=`cat .shrug/log | tail -1 | cut -d " " -f1`
+fi
+
+# Files
+index_files="`find .shrug/index -maxdepth 1 -type f | rev | cut -d "/" -f1 | rev`"
+commit_files="`find .shrug/commit/$commit_no -maxdepth 1 -type f | rev | cut -d "/" -f1 | rev`"
+working_dir_files="`find . -maxdepth 1 -type f | rev | cut -d "/" -f1 | rev`"
+
+all_files=`echo "$index_files\n$commit_files\n$working_dir_files" | sort | uniq`
+
+
+for file in $all_files
+do
+    # Debug
+    in_working_dir="`find . -maxdepth 1 -name "$file"`"
+    in_index="`find .shrug/index -maxdepth 1 -name "$file" -type f`"
+    in_latest_commit="`find .shrug/commit/$commit_no -maxdepth 1 -name "$file" -type f`"
+
+    if [ -z "$in_working_dir" ]         # ! working directory
+    then
+        if [ -z "$in_index" ]           # ! working directory | ! index
+        then
+            echo "$file - deleted"
+        else                            # ! working dir | index
+            echo "$file - file deleted"
+        fi
+    elif [ -n "$in_index" ]
+    then
+        # index | ! commit
+        if [ -z "$in_latest_commit" ]
+        then
+            echo "$file - added to index"
+        # working dir | index | commit
+        else
+            # working dir != index
+            if [ -n "diff $file .shrug/index/$file" ]
+            then
+                # working dir != index != commit
+                if [ -n "`diff .shrug/index/$file .shrug/commit/$commit_no/$file`" ]
+                then
+                    echo "$file - file changed, different changes staged for commit"
+                # working dir != index = commit
+                else
+                    echo "$file - file changed, changes not staged for commit"
+                fi
+            # working dir = index
+            else
+                # working = index != commit
+                if [ -n "`diff .shrug/index/$file .shrug/commit/$commit_no/$file`" ]
+                then
+                    echo "$file - file changed, changes stage for commit"
+                # working = index = commit
+                else
+                    echo "$file - same as repo"
+                fi
+            fi
+        fi
+    else
+        echo "$file - untracked"
+    fi
+done
+
