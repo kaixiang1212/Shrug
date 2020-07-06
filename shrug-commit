@@ -35,7 +35,7 @@ else
         then
             for file in `find $index_dir -type f`
             do
-                filename=`echo $file | rev | cut -d "/" -f1 | rev`
+                filename=`basename $file`
                 # echo "$filename"
                 `$shrug_add $filename`
                 # echo "update $file"
