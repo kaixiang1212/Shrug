@@ -46,7 +46,6 @@ do
             exit 1
         # Valid branch name
         else
-            echo $argv | egrep "[-_A-Za-z]"
             branch=$argv
         fi
     fi
