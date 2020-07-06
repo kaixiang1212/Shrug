@@ -66,7 +66,7 @@ then
         then
             echo "master"
         else
-            branches="`find .shrug/branch -mindepth 1 -maxdepth 1 -type d`"
+            branches="`find .shrug/branch -mindepth 1 -maxdepth 1 -type d | sort `"
             for branch in $branches
             do
                 branch=`echo $branch | rev | cut -d "/" -f1 | rev`
@@ -87,6 +87,11 @@ else
             exit 1
         # Branch exists
         else
+            if [ $branch = "master" ]
+            then
+                echo "shrug-branch: error: can not delete branch 'master'"
+                exit 1
+            fi
             rm -rf ".shrug/branch/$branch" &&
             echo "Deleted branch '$branch'"
         fi
@@ -96,8 +101,6 @@ else
         then
             mkdir .shrug/branch
             mkdir .shrug/branch/master
-            cp -r .shrug/commit .shrug/branch/master/commit
-            cp .shrug/log .shrug/branch/master
         fi
         # check if branch with given name exist
         if [ -d .shrug/branch/$branch ]
