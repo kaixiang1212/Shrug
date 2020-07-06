@@ -7,7 +7,7 @@ then
     exit 0
 fi
 
-if [ `sha256sum $1` -ne `sha256sum $2` ] 
+if [ "`sha256sum $1 | cut -d ' ' -f1`" = "`sha256sum $2 | cut -d ' ' -f1`" ] 
 then
     exit 1
 fi
