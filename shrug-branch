@@ -1,9 +1,11 @@
 #!/bin/dash
 
+# Not a shrug repository
 if [ ! -d ".shrug" ]
 then
     echo "$0: error: no .shrug directory containing shrug repository exists" >> /dev/stderr
     exit 1
+# No commit yet
 elif [ ! -f .shrug/log ]
 then
     echo "$0: error: your repository does not have any commits yet" >> /dev/stderr
@@ -22,23 +24,31 @@ branch=""
 delete_flag=0
 for argv in $@
 do
+    # Detect -d flag
     if echo $argv | egrep "^(-d)$" -q
     then
         delete_flag=1
+    # Detect invalid flag
     elif echo $argv | egrep "^-" -q && echo $argv | egrep "^--.+" -q
     then
         echo "$usage"
         exit
+    # Treat -- as nothing
+    elif echo $argv | egrep "^--$" -q
+    then
+        continue
     else
-        if echo $argv | egrep "^--$" -q
-        then
-            continue
-        elif echo $argv | egrep -v "^[A-Za-z0-9]*$" -q
+        # Check for invalid branch name
+        if echo $argv | egrep -v "^[-_A-Za-z0-9]*$" -q \
+            || echo $argv | egrep -v "[-_A-Za-z]" -q
         then
             echo "$0: error: invalid branch name '$argv'" >> /dev/stderr
             exit 1
+        # Valid branch name
+        else
+            echo $argv | egrep "[-_A-Za-z]"
+            branch=$argv
         fi
-        branch=$argv
     fi
 done
 
@@ -50,13 +60,14 @@ then
     then
         echo "$0: error: branch name required"
         exit
+    # List all branch
     else
-        # No branch
+        # No branch created yet
         if [ ! -d .shrug/branch ]
         then
             echo "master"
         else
-            branches="`find .shrug/branch -mindepth 1 -type d`"
+            branches="`find .shrug/branch -mindepth 1 -maxdepth 1 -type d`"
             for branch in $branches
             do
                 branch=`echo $branch | rev | cut -d "/" -f1 | rev`
@@ -85,7 +96,9 @@ else
         if [ ! -d .shrug/branch ]
         then
             mkdir .shrug/branch
-        elif [ -d .shrug/branch/$branch ]
+        fi
+        # check if branch with given name exist
+        if [ -d .shrug/branch/$branch ]
         then
             echo "$0: error: branch '$branch' already exists"
             exit 1
@@ -98,5 +111,4 @@ else
         cp -r .shrug/commit .shrug/branch/$branch/commit
         cp .shrug/log .shrug/branch/$branch
     fi
-    # 
 fi
