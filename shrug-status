@@ -39,7 +39,7 @@ do
         # working dir | index | commit
         else
             # working dir != index
-            if [ -n "diff $file .shrug/index/$file" ]
+            if [ -n "`diff $file .shrug/index/$file`" ]
             then
                 # working dir != index != commit
                 if [ -n "`diff .shrug/index/$file .shrug/commit/$commit_no/$file`" ]
@@ -54,7 +54,7 @@ do
                 # working = index != commit
                 if [ -n "`diff .shrug/index/$file .shrug/commit/$commit_no/$file`" ]
                 then
-                    echo "$file - file changed, changes stage for commit"
+                    echo "$file - file changed, changes staged for commit"
                 # working = index = commit
                 else
                     echo "$file - same as repo"
