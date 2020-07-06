@@ -65,12 +65,15 @@ do
     then
         # Check if file inside index is different from file in directory
         # Check if file inside index is different from last commit
+        # No commit
         if [ -z $commit_no ]
         then 
             echo "$0: error: your repository does not have any commits yet" >> /dev/stderr
             exit 1;
+        # cached & force
         elif [ $force_flag -eq 0 ] && [ $cached_flag -eq 0 ]
         then
+            # working dir != index
             if $(`shrug-diff .shrug/index/$file $file`)
             then
                 if [ -f .shrug/commit/$commit_no/$file ] \
@@ -82,13 +85,16 @@ do
                     echo "$0: error: '$file' in repository is different to working file" >> /dev/stderr
                     exit 1
                 fi
+            # index != commit
             elif $(`shrug-diff .shrug/index/$file .shrug/commit/$commit_no/$file`)
             then
                 echo "$0: error: '$file' has changes staged in the index" >> /dev/stderr
                 exit 1
             fi
+        # cached & ! force
         elif [ $cached_flag -eq 1 ] && [ $force_flag -eq 0 ]
         then
+            # working dir != index != commit
             if $(`shrug-diff .shrug/index/$file $file`) \
                 && [ -f .shrug/commit/$commit_no/$file ] \
                 && $(`shrug-diff ".shrug/index/$file" ".shrug/commit/$commit_no/$file"`)
