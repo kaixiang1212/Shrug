@@ -7,111 +7,99 @@ force_flag=0
 cached_flag=0
 log_file=".shrug/log"
 
-
 commit_no=""
-if [ -d .shrug/commit ]
-then
-    commit_no=`cat $log_file | tail -1 | cut -d " " -f1`
+if [ -d .shrug/commit ]; then
+    commit_no=$(cat $log_file | tail -1 | cut -d " " -f1)
 fi
 
-
 # Check if .shrug exists
-if [ ! -d ".shrug" ]
-then
-    echo "$0: error: no .shrug directory containing shrug repository exists" >> /dev/stderr
-    exit 1;
+if [ ! -d ".shrug" ]; then
+    echo "$0: error: no .shrug directory containing \
+            shrug repository exists" >>/dev/stderr
+    exit 1
 fi
 
 files=""
 
 # Check argument number
-if [ $# -lt 1 ]
-then
+if [ $# -lt 1 ]; then
     echo "$usage"
-    exit 
+    exit
 # Process Flags
 else
-    for argv in $@
-    do
-        if echo $argv | egrep "^--force$" > /dev/null
-        then
+    for argv in $@; do
+        if echo $argv | egrep "^--force$" >/dev/null; then
             force_flag=1
-        elif echo $argv | egrep "^--cached$" > /dev/null
-        then
+        elif echo $argv | egrep "^--cached$" >/dev/null; then
             cached_flag=1
-        elif echo $argv | egrep "^-" > /dev/null
-        then
+        elif echo $argv | egrep "^-" >/dev/null; then
             echo "$usage"
             exit
-        elif [ -n "$files" ]
-        then
-            files=` echo "$files $argv" `
-        else 
+        elif [ -n "$files" ]; then
+            files=$(echo "$files $argv")
+        else
             files="$argv"
         fi
     done
 fi
 
-if [ -z "$files" ]
-then
+if [ -z "$files" ]; then
     echo "$usage"
     exit
 fi
 
-for file in $files
-do
+for file in $files; do
     # check if file exists in index
-    if [ -f ".shrug/index/$file" ]
-    then
+    if [ -f ".shrug/index/$file" ]; then
         # Check if file inside index is different from file in directory
         # Check if file inside index is different from last commit
         # No commit
-        if [ -z $commit_no ]
-        then 
-            echo "$0: error: your repository does not have any commits yet" >> /dev/stderr
-            exit 1;
+        if [ -z $commit_no ]; then
+            echo "$0: error: your repository does not \
+                    have any commits yet" >>/dev/stderr
+            exit 1
         # cached & force
-        elif [ $force_flag -eq 0 ] && [ $cached_flag -eq 0 ]
-        then
+        elif [ $force_flag -eq 0 ] && [ $cached_flag -eq 0 ]; then
             # working dir != index
-            if $(`shrug-diff .shrug/index/$file $file`)
-            then
-                if [ -f .shrug/commit/$commit_no/$file ] \
-                    && $(`shrug-diff ".shrug/index/$file" ".shrug/commit/$commit_no/$file"`)
-                then
-                    echo "$0: error: '$file' in index is different to both working file and repository" >> /dev/stderr
+            if shrug-diff .shrug/index/$file $file; then
+                if [ -f .shrug/commit/$commit_no/$file ] &&
+                    shrug-diff ".shrug/index/$file" \
+                               ".shrug/commit/$commit_no/$file"; then
+                    echo "$0: error: '$file' in index is different to both \
+                            working file and repository" >>/dev/stderr
                     exit 1
                 else
-                    echo "$0: error: '$file' in repository is different to working file" >> /dev/stderr
+                    echo "$0: error: '$file' in repository is \
+                            different to working file" >>/dev/stderr
                     exit 1
                 fi
             # index != commit
-            elif $(`shrug-diff .shrug/index/$file .shrug/commit/$commit_no/$file`)
-            then
-                echo "$0: error: '$file' has changes staged in the index" >> /dev/stderr
+            elif shrug-diff .shrug/index/$file \
+                .shrug/commit/$commit_no/$file; then
+                echo "$0: error: '$file' has changes staged in the index" 
+                    >>/dev/stderr
                 exit 1
             fi
         # cached & ! force
-        elif [ $cached_flag -eq 1 ] && [ $force_flag -eq 0 ]
-        then
+        elif [ $cached_flag -eq 1 ] && [ $force_flag -eq 0 ]; then
             # working dir != index != commit
-            if $(`shrug-diff .shrug/index/$file $file`) \
-                && [ -f .shrug/commit/$commit_no/$file ] \
-                && $(`shrug-diff ".shrug/index/$file" ".shrug/commit/$commit_no/$file"`)
-            then
-                echo "$0: error: '$file' in index is different to both working file and repository" >> /dev/stderr
+            if shrug-diff .shrug/index/$file $file &&
+                [ -f .shrug/commit/$commit_no/$file ] &&
+                shrug-diff ".shrug/index/$file" \
+                           ".shrug/commit/$commit_no/$file"; then
+                echo "$0: error: '$file' in index is different to 
+                        both working file and repository" >>/dev/stderr
                 exit 1
             fi
         fi
         rm ".shrug/index/$file"
 
         # Remove file on current directory if --cached is not specified
-        if [ $cached_flag -ne 1 ] && [ -f "$file" ]
-        then
+        if [ $cached_flag -ne 1 ] && [ -f "$file" ]; then
             rm "$file"
         fi
     else
-        echo "$0: error: '$file' is not in the shrug repository" >> /dev/stderr
-        exit 1;
+        echo "$0: error: '$file' is not in the shrug repository" >>/dev/stderr
+        exit 1
     fi
 done

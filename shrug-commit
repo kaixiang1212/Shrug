@@ -12,32 +12,28 @@ shrug_add="shrug-add"
 usage="usage: shrug-commit [-a] -m commit-message"
 
 # Check if .shrug exists
-if [ ! -d ".shrug" ]
-then
-    echo "$0: error: no .shrug directory containing shrug repository exists" >> /dev/stderr
-    exit 1;
+if [ ! -d ".shrug" ]; then
+    echo "$0: error: no .shrug directory containing\ shrug repository exists" \
+        >>/dev/stderr
+    exit 1
 fi
 
 # Check argument number
-if [ $# -lt 2 ]
-then
+if [ $# -lt 2 ]; then
     echo $usage
-    exit 
+    exit
 # Process Arguments
 else
-    while [ $1 ]
-    do 
-        if echo $1 | egrep "^-m$" > /dev/null && echo $2 | egrep -v "^-.+" > /dev/null
-        then
+    while [ $1 ]; do
+        if echo $1 | egrep "^-m$" >/dev/null \
+            && echo $2 | egrep -v "^-.+" >/dev/null; then
             msg=$2
             shift
-        elif echo $1 | egrep "^-a$" > /dev/null
-        then
-            for file in `find $index_dir -type f`
-            do
-                filename=`echo $file | rev | cut -d "/" -f1 | rev`
+        elif echo $1 | egrep "^-a$" >/dev/null; then
+            for file in $(find $index_dir -type f); do
+                filename=$(echo $file | rev | cut -d "/" -f1 | rev)
                 # echo "$filename"
-                `$shrug_add $filename`
+                $($shrug_add $filename)
                 # echo "update $file"
             done
         else
@@ -50,32 +46,29 @@ fi
 
 # Check if repo has previous commit
 commit_no=0
-if [ ! -d $commit_dir ]
-then
+if [ ! -d $commit_dir ]; then
     mkdir "$commit_dir"
 else
-    commit_no=`cat $log_file | tail -1 | cut -d " " -f1`
-    commit_no=$(($commit_no+1))
+    commit_no=$(cat $log_file | tail -1 | cut -d " " -f1)
+    commit_no=$(($commit_no + 1))
 fi
 
 # echo "$commit_no $msg" >> ".shrug/log.txt"
-if [ $commit_no -ne 0 ]; then           # Not initial commit
-    differ=` $shrug_cmp "$index_dir" "$commit_dir/$(($commit_no-1))" `
-    if [ -n "$differ" ]
-    then
-        for line in $differ
-        do
-            file=` echo $line | cut -d " " -f2 `
+if [ $commit_no -ne 0 ]; then # Not initial commit
+    differ=$($shrug_cmp "$index_dir" "$commit_dir/$(($commit_no - 1))")
+    if [ -n "$differ" ]; then
+        for line in $differ; do
+            file=$(echo $line | cut -d " " -f2)
         done
         cp -r "$index_dir/." "$commit_dir/$commit_no"
-        echo "$commit_no $msg" >> "$log_file"
+        echo "$commit_no $msg" >>"$log_file"
         echo "Committed as commit $commit_no"
     else
         echo "nothing to commit"
     fi
-else                            # Initial commit
+else # Initial commit
     cp -r "$index_dir/." "$commit_dir/$commit_no"
-    echo "$commit_no $msg" >> "$log_file"
+    echo "$commit_no $msg" >>"$log_file"
     echo "Committed as commit $commit_no"
 fi
 
