@@ -3,12 +3,12 @@
 # Not a shrug repository
 if [ ! -d ".shrug" ]
 then
-    echo "$0: error: no .shrug directory containing shrug repository exists" >> /dev/stderr
+    echo "$0: error: no .shrug directory containing shrug repository exists" >>/dev/stderr
     exit 1
 # No commit yet
 elif [ ! -f .shrug/log ]
 then
-    echo "$0: error: your repository does not have any commits yet" >> /dev/stderr
+    echo "$0: error: your repository does not have any commits yet" >>/dev/stderr
     exit 1
 fi
 
@@ -18,7 +18,7 @@ usage="usage: shrug-branch [-d] <branch>"
 if [ $# -gt 2 ]
 then
     echo "$usage"
-    exit
+    exit 1
 fi
 branch=""
 delete_flag=0
@@ -32,7 +32,7 @@ do
     elif echo $argv | egrep "^-" -q && echo $argv | egrep "^--.+" -q
     then
         echo "$usage"
-        exit
+        exit 1
     # Treat -- as nothing
     elif echo $argv | egrep "^--$" -q
     then
@@ -42,7 +42,7 @@ do
         if echo $argv | egrep -v "^[-_A-Za-z0-9]*$" -q \
             || echo $argv | egrep -v "[-_A-Za-z]" -q
         then
-            echo "$0: error: invalid branch name '$argv'" >> /dev/stderr
+            echo "$0: error: invalid branch name '$argv'" >>/dev/stderr
             exit 1
         # Valid branch name
         else
@@ -58,7 +58,7 @@ then
     if [ $delete_flag -eq 1 ]
     then
         echo "$0: error: branch name required"
-        exit
+        exit 1
     # List all branch
     else
         # No branch created yet
@@ -73,7 +73,7 @@ then
                 echo "$branch"
             done
         fi
-        exit
+        exit 0
     fi
 # Branch specified
 else
@@ -83,7 +83,7 @@ else
         # Branch not exist
         if [ ! -d .shrug/branch/$branch ]
         then
-            echo "$0: error: branch '$branch' does not exist"
+            echo "$0: error: branch '$branch' does not exist" >>/dev/stderr
             exit 1
         # Branch exists
         else
@@ -102,6 +102,7 @@ else
             mkdir .shrug/branch
             mkdir .shrug/branch/master
         fi
+
         # check if branch with given name exist
         if [ -d .shrug/branch/$branch ]
         then

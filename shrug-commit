@@ -22,7 +22,7 @@ fi
 if [ $# -lt 2 ]
 then
     echo $usage
-    exit 
+    exit 1
 # Process Arguments
 else
     while [ $1 ]
@@ -42,7 +42,7 @@ else
             done
         else
             echo $usage
-            exit
+            exit 1
         fi
         shift
     done

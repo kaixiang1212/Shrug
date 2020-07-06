@@ -28,7 +28,7 @@ files=""
 if [ $# -lt 1 ]
 then
     echo "$usage"
-    exit 
+    exit 1
 # Process Flags
 else
     for argv in $@
@@ -42,7 +42,7 @@ else
         elif echo $argv | egrep "^-" > /dev/null
         then
             echo "$usage"
-            exit
+            exit 1
         elif [ -n "$files" ]
         then
             files=` echo "$files $argv" `
@@ -55,7 +55,7 @@ fi
 if [ -z "$files" ]
 then
     echo "$usage"
-    exit
+    exit 1
 fi
 
 for file in $files

@@ -52,4 +52,5 @@ if echo $1 | egrep ":" > /dev/null; then
     fi
 else
     echo $usage
+    exit 1
 fi

@@ -1,10 +1,14 @@
 #!/bin/dash
 
 # Check if .shrug exists
-if [ -d ".shrug" ]
+if [ $# -ne 0 ]
+then
+    echo "usage: shrug-init"
+    exit 1
+elif [ -d ".shrug" ]
 then
     echo "$0: error: .shrug already exists" >> /dev/stderr
-    exit
+    exit 1
 fi
 
 
