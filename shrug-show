@@ -8,32 +8,33 @@ log_file=".shrug/log"
 
 # Check if .shrug exists
 if [ ! -d ".shrug" ]; then
-    echo "$0: error: no .shrug directory containing shrug repository exists" >>/dev/stderr
-    exit 1
+    echo "$0: error: no .shrug directory containing shrug repository exists" >> /dev/stderr
+    exit 1;
 elif [ ! -f $log_file ]; then
-    echo "$0: error: your repository does not have any commits yet" >>/dev/stderr
-    exit 1
+    echo "$0: error: your repository does not have any commits yet" >> /dev/stderr
+    exit 1;
 fi
 
-# Check if argument is in the right format
-if echo $1 | egrep ":" >/dev/null; then
-    commit=$(echo $1 | cut -d ":" -f1)
-    file=$(echo $1 | cut -d ":" -f2)
+# Check if argument is in the right format 
+if echo $1 | egrep ":" > /dev/null; then    
+    commit=`echo $1 | cut -d ":" -f1`
+    file=`echo $1 | cut -d ":" -f2`
 
     # Check filename
-    if echo $file | egrep "^[\.-]" >/dev/null ||
-        echo $file | egrep -v "^[A-Za-z\.0-9-]+$" >/dev/null; then
-        echo "$0: error: invalid filename '$file'" >>/dev/stderr
-        exit 1
+    if echo $file | egrep "^[\.-]" > /dev/null \
+        || echo $file | egrep -v "^[A-Za-z\.0-9-]+$" > /dev/null;
+        then
+        echo "$0: error: invalid filename '$file'" >> /dev/stderr
+        exit 1;
     fi
-
+    
     # Check if commit argument is given
     if [ ! $commit ]; then
         # Check file under index exist
         if [ -f "$index_dir/$file" ]; then
             cat "$index_dir/$file"
         else
-            echo "$0: error: '$file' not found in index" >>/dev/stderr
+            echo "$0: error: '$file' not found in index" >> /dev/stderr
             exit 1
         fi
     # Check commit exist
@@ -42,11 +43,11 @@ if echo $1 | egrep ":" >/dev/null; then
         if [ -f "$commit_dir/$commit/$file" ]; then
             cat "$commit_dir/$commit/$file"
         else
-            echo "$0: error: '$file' not found in commit $commit" >>/dev/stderr
+            echo "$0: error: '$file' not found in commit $commit" >> /dev/stderr
             exit 1
         fi
     else
-        echo "$0: error: unknown commit '$commit'" >>/dev/stderr
+        echo "$0: error: unknown commit '$commit'" >> /dev/stderr
         exit 1
     fi
 else
