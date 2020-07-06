@@ -1,0 +1,102 @@
+#!/bin/dash
+
+if [ ! -d ".shrug" ]
+then
+    echo "$0: error: no .shrug directory containing shrug repository exists" >> /dev/stderr
+    exit 1
+elif [ ! -f .shrug/log ]
+then
+    echo "$0: error: your repository does not have any commits yet" >> /dev/stderr
+    exit 1
+fi
+
+usage="usage: shrug-branch [-d] <branch>"
+
+# Arguments
+if [ $# -gt 2 ]
+then
+    echo "$usage"
+    exit
+fi
+branch=""
+delete_flag=0
+for argv in $@
+do
+    if echo $argv | egrep "^(-d)$" -q
+    then
+        delete_flag=1
+    elif echo $argv | egrep "^-" -q && echo $argv | egrep "^--.+" -q
+    then
+        echo "$usage"
+        exit
+    else
+        if echo $argv | egrep "^--$" -q
+        then
+            continue
+        elif echo $argv | egrep -v "^[A-Za-z0-9]*$" -q
+        then
+            echo "$0: error: invalid branch name '$argv'" >> /dev/stderr
+            exit 1
+        fi
+        branch=$argv
+    fi
+done
+
+# Branch not specified
+if [ -z $branch ]
+then
+    # Delete flag specified
+    if [ $delete_flag -eq 1 ]
+    then
+        echo "$0: error: branch name required"
+        exit
+    else
+        # No branch
+        if [ ! -d .shrug/branch ]
+        then
+            echo "master"
+        else
+            branches="`find .shrug/branch -mindepth 1 -type d`"
+            for branch in $branches
+            do
+                branch=`echo $branch | rev | cut -d "/" -f1 | rev`
+                echo "$branch"
+            done
+        fi
+        exit
+    fi
+# Branch specified
+else
+    # Delete flag specified
+    if [ $delete_flag -eq 1 ]
+    then
+        # Branch not exist
+        if [ ! -d .shrug/branch/$branch ]
+        then
+            echo "$0: error: branch '$branch' does not exist"
+            exit 1
+        # Branch exists
+        else
+            rm -rf ".shrug/branch/$branch" &&
+            echo "Deleted branch '$branch'"
+        fi
+    # Create branch
+    else
+        if [ ! -d .shrug/branch ]
+        then
+            mkdir .shrug/branch
+        elif [ -d .shrug/branch/$branch ]
+        then
+            echo "$0: error: branch '$branch' already exists"
+            exit 1
+        fi
+
+        mkdir ".shrug/branch/$branch"
+        # mkdir ".shrug/branch/$branch/working_dir"
+        mkdir ".shrug/branch/$branch/commit"
+        
+        cp -r .shrug/commit .shrug/branch/$branch/commit
+        cp .shrug/log .shrug/branch/$branch
+    fi
+    # 
+fi
