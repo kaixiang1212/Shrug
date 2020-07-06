@@ -95,6 +95,9 @@ else
         if [ ! -d .shrug/branch ]
         then
             mkdir .shrug/branch
+            mkdir .shrug/branch/master
+            cp -r .shrug/commit .shrug/branch/master/commit
+            cp .shrug/log .shrug/branch/master
         fi
         # check if branch with given name exist
         if [ -d .shrug/branch/$branch ]
