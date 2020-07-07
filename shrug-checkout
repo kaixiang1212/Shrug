@@ -1,0 +1,103 @@
+#!/bin/dash
+
+if [ $# -ne 1 ] 
+then
+    echo "usage: shrug-checkout <branch>"
+    exit 1
+fi
+
+branches=`shrug-branch`
+branch=""
+current_branch=`cat .shrug/current_branch`
+
+for br in $branches
+do
+    if [ $br = $1 ]
+    then
+        branch=$br
+    fi
+done
+
+if [ -z $branch ]
+then
+    echo "$0: error: unknown branch '$1'" >>/dev/stderr
+    exit 1
+elif [ "$branch" = "$current_branch" ]
+then
+    echo "Already on '$branch'"
+    exit 0 
+fi
+
+# Check if any changes in commit made since last checkout
+#   Update changes to branch if changes were made, ignore otherwise
+current_branch_commit=`find .shrug/branch/$current_branch/commit -type f \
+                        -exec sha256sum {} \; | cut -d " " -f1 | sha256sum`
+localbranch_commit=`find .shrug/commit/ -type f -exec sha256sum {} \; \
+                        | cut -d " " -f1 | sha256sum`
+if [ "$current_branch" != "$local_branch_commit" ]
+then
+    cp -r .shrug/commit .shrug/branch/$branch
+    cp .shrug/log .shrug/branch/$branch
+fi
+
+
+# Check if target branch and current branch has different commit
+target_branch_commit=`find .shrug/branch/$branch/commit -type f \
+                        -exec sha256sum {} \; | cut -d " " -f1 | sha256sum`
+
+# target branch commit = current branch commit
+if [ "$current_branch_commit" = "$target_branch_commit" ]
+then
+    echo "$branch" > .shrug/current_branch
+    echo "Switched to branch '$branch'"
+    exit 0
+# target branch commit != current branch commit
+else
+    # If changes was made in index but not committed
+    changes=`shrug-statuss | egrep "file changed|added to index|deleted"`
+    if [ -n "$changes" ]
+    then
+        echo "$0: error: Your changes to the following files would be overwritten by checkout:" >>/dev/stderr
+        files=`echo $changes | cut -d " " -f1`
+        for file in $files
+        do
+            echo "$file" >>/dev/stderr
+        done
+        exit 1
+    fi
+
+    # Compare target branch commit with local index
+    target_commit_no=`find .shrug/branch/$branch/commit -type d -exec basename {} \; | tail -1`
+    target_files=`find .shrug/branch/$branch/commit/$target_commit_no -type f -exec basename {} \;`
+    for file in target_files
+    do
+        override=""
+        if [ -f $file ] && [ ! -f .shrug/index/$file ]
+        then
+            changes=`echo $file $changes`
+        fi
+    done
+    
+    if [ -n "$changes" ]
+    then
+        echo "$0: error: Your changes to the following files would be overwritten by checkout:" >>/dev/stderr
+        files=`echo $changes | cut -d " " -f1`
+        for file in $files
+        do
+            echo "$file" >>/dev/stderr
+        done
+        exit 1
+    fi
+
+    local_tracked_files=`2041 shrug-statuss | egrep -v "untracked" | cut -d " " -f1`
+    for file in $local_tracked_files
+    do
+        rm $file 2>/dev/null
+        rm .shrug/index/$file 2>/dev/null
+    done
+    rm -rf .shrug/commit
+    cp -r .shrug/branch/$branch/commit/* .shrug/commit/
+    cp .shrug/commit/$target_commit_no/* .
+    cp .shrug/commit/$target_commit_no/* .shrug/index
+    echo "Switched to branch '$branch'"
+fi
