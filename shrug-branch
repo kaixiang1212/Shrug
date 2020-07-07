@@ -114,7 +114,7 @@ else
         # mkdir ".shrug/branch/$branch/working_dir"
         mkdir ".shrug/branch/$branch/commit"
         
-        cp -r .shrug/commit .shrug/branch/$branch/commit
+        cp -r .shrug/commit .shrug/branch/$branch
         cp .shrug/log .shrug/branch/$branch
     fi
 fi

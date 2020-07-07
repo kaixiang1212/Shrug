@@ -1,1 +1,3 @@
-rm -r .shrug/commit/*
+#!/bin/dash
+
+echo "hello" >> /dev/stderr

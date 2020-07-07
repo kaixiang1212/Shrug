@@ -30,14 +30,25 @@ do
             echo "$file - deleted"
         # ! working dir | index
         else
-            echo "$file - file deleted"
+            # ! working dir && index != commit
+            if shrug-diff $in_index $in_latest_commit
+            then
+                echo "$file - added to index, file deleted"
+            else
+                echo "$file - file deleted"
+            fi
         fi
     elif [ -n "$in_index" ]
     then
-        # index | ! commit
+        # working dir | index | ! commit
         if [ -z "$in_latest_commit" ]
         then
-            echo "$file - added to index"
+            if shrug-diff $file .shrug/index/$file
+            then
+                echo "$file - added to index, file changed"
+            else
+                echo "$file - added to index"
+            fi
         # working dir | index | commit
         else
             # working dir != index
