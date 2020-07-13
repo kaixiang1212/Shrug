@@ -53,16 +53,17 @@ commit_no=0
 if [ ! -f .shrug/commit_no ]
 then
     mkdir .shrug/commit
-    echo "$commit_no" > .shrug/commit_no
+    echo $commit_no > .shrug/commit_no
 else
     commit_no=`cat .shrug/commit_no`
     commit_no=$(($commit_no+1))
 fi
 
-last_commit_no=`find .shrug/commit -mindepth 1 -type d -exec basename {} \;`
+last_commit_no="`find .shrug/commit -mindepth 1 -type d -exec basename {} \; | sort | tail -1`"
 # echo "$commit_no $msg" >> ".shrug/log.txt"
-if [ -n "$last_commit_no" ]; then           # Not initial commit
-    differ=` $shrug_cmp "$index_dir" "$commit_dir/$(($last_commit_no))" `
+if [ ! $last_commit_no = "" ]
+then           # Not initial commit
+    differ=`$shrug_cmp "$index_dir" "$commit_dir/$last_commit_no" `
     if [ -n "$differ" ]
     then
         for line in $differ

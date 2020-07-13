@@ -58,6 +58,17 @@ then
     exit 1
 fi
 
+# Precheck 
+for file in $files
+do
+    # check if file exists in index
+    if [ ! -f ".shrug/index/$file" ]
+    then
+        echo "$0: error: '$file' is not in the shrug repository" >> /dev/stderr
+        exit 1;
+    fi
+done
+
 for file in $files
 do
     # check if file exists in index

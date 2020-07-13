@@ -35,8 +35,8 @@ cp .shrug/log .shrug/branch/$current_branch
 
 
 # Check if target branch and current branch has different commit
-target_branch_commit=`find .shrug/branch/$branch/commit -type f \
-                        -exec sha256sum {} \; | cut -d " " -f1 | sha256sum`
+current_branch_commit=`(cd .shrug/branch/$current_branch ;find -type f -exec sha256sum {} \;) | sha256sum`
+target_branch_commit=`(cd .shrug/branch/$branch ;find -type f -exec sha256sum {} \;) | sha256sum`
 
 # target branch commit = current branch commit
 if [ "$current_branch_commit" = "$target_branch_commit" ]
@@ -60,21 +60,20 @@ else
     fi
 
     # Compare target branch commit with local index
-    target_commit_no=`find .shrug/branch/$branch/commit -type d -exec basename {} \; | tail -1`
+    target_commit_no=`find .shrug/branch/$branch/commit -mindepth 1 -type d -exec basename {} \; | sort | tail -1`
     target_files=`find .shrug/branch/$branch/commit/$target_commit_no -type f -exec basename {} \;`
-    for file in target_files
+    override=""
+    for file in $target_files
     do
-        override=""
         if [ -f $file ] && [ ! -f .shrug/index/$file ]
         then
-            changes=`echo $file $changes`
+            override=`echo $file $override`
         fi
     done
-    if [ -n "$changes" ]
+    if [ -n "$override" ]
     then
         echo "$0: error: Your changes to the following files would be overwritten by checkout:" >>/dev/stderr
-        files=`echo $changes | cut -d " " -f1`
-        for file in $files
+        for file in $override
         do
             echo "$file" >>/dev/stderr
         done
