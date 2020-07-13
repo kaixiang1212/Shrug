@@ -30,15 +30,8 @@ fi
 
 # Check if any changes in commit made since last checkout
 #   Update changes to branch if changes were made, ignore otherwise
-current_branch_commit=`find .shrug/branch/$current_branch/commit -type f \
-                        -exec sha256sum {} \; | cut -d " " -f1 | sha256sum`
-localbranch_commit=`find .shrug/commit/ -type f -exec sha256sum {} \; \
-                        | cut -d " " -f1 | sha256sum`
-if [ "$current_branch" != "$local_branch_commit" ]
-then
-    cp -r .shrug/commit .shrug/branch/$branch
-    cp .shrug/log .shrug/branch/$branch
-fi
+cp -rf .shrug/commit .shrug/branch/$current_branch
+cp .shrug/log .shrug/branch/$current_branch
 
 
 # Check if target branch and current branch has different commit
@@ -54,7 +47,7 @@ then
 # target branch commit != current branch commit
 else
     # If changes was made in index but not committed
-    changes=`shrug-statuss | egrep "file changed|added to index|deleted"`
+    changes=`shrug-status | egrep "file changed|added to index|deleted"`
     if [ -n "$changes" ]
     then
         echo "$0: error: Your changes to the following files would be overwritten by checkout:" >>/dev/stderr
@@ -77,7 +70,6 @@ else
             changes=`echo $file $changes`
         fi
     done
-    
     if [ -n "$changes" ]
     then
         echo "$0: error: Your changes to the following files would be overwritten by checkout:" >>/dev/stderr
@@ -89,15 +81,21 @@ else
         exit 1
     fi
 
-    local_tracked_files=`2041 shrug-statuss | egrep -v "untracked" | cut -d " " -f1`
+    local_tracked_files=`shrug-status | egrep -v "untracked" | cut -d " " -f1`
     for file in $local_tracked_files
     do
-        rm $file 2>/dev/null
-        rm .shrug/index/$file 2>/dev/null
+        rm -rf $file
+        rm -rf .shrug/index/$file
     done
     rm -rf .shrug/commit
-    cp -r .shrug/branch/$branch/commit/* .shrug/commit/
-    cp .shrug/commit/$target_commit_no/* .
-    cp .shrug/commit/$target_commit_no/* .shrug/index
+    rm -rf .shrug/log
+    cp -r .shrug/branch/$branch/commit .shrug/
+    cp .shrug/branch/$branch/log .shrug/
+    for file in $target_files
+    do
+        cp .shrug/commit/$target_commit_no/$file .
+        cp .shrug/commit/$target_commit_no/$file .shrug/index
+    done
+    echo "$branch" > .shrug/current_branch
     echo "Switched to branch '$branch'"
 fi

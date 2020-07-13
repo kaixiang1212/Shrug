@@ -50,17 +50,19 @@ fi
 
 # Check if repo has previous commit
 commit_no=0
-if [ ! -d $commit_dir ]
+if [ ! -f .shrug/commit_no ]
 then
-    mkdir "$commit_dir"
+    mkdir .shrug/commit
+    echo "$commit_no" > .shrug/commit_no
 else
-    commit_no=`cat $log_file | tail -1 | cut -d " " -f1`
+    commit_no=`cat .shrug/commit_no`
     commit_no=$(($commit_no+1))
 fi
 
+last_commit_no=`find .shrug/commit -mindepth 1 -type d -exec basename {} \;`
 # echo "$commit_no $msg" >> ".shrug/log.txt"
-if [ $commit_no -ne 0 ]; then           # Not initial commit
-    differ=` $shrug_cmp "$index_dir" "$commit_dir/$(($commit_no-1))" `
+if [ -n "$last_commit_no" ]; then           # Not initial commit
+    differ=` $shrug_cmp "$index_dir" "$commit_dir/$(($last_commit_no))" `
     if [ -n "$differ" ]
     then
         for line in $differ
@@ -69,6 +71,7 @@ if [ $commit_no -ne 0 ]; then           # Not initial commit
         done
         cp -r "$index_dir/." "$commit_dir/$commit_no"
         echo "$commit_no $msg" >> "$log_file"
+        echo "$commit_no" > .shrug/commit_no
         echo "Committed as commit $commit_no"
     else
         echo "nothing to commit"
@@ -76,6 +79,7 @@ if [ $commit_no -ne 0 ]; then           # Not initial commit
 else                            # Initial commit
     cp -r "$index_dir/." "$commit_dir/$commit_no"
     echo "$commit_no $msg" >> "$log_file"
+    echo "$commit_no" > .shrug/commit_no
     echo "Committed as commit $commit_no"
 fi
 
