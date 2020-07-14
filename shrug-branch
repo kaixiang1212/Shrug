@@ -13,7 +13,6 @@ elif [ $# -gt 2 ]
 then
     echo "$usage"
     exit 1
-fi
 # No commit
 elif [ ! -f .shrug/log ]
 then
