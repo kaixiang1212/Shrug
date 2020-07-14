@@ -1,25 +1,27 @@
 #!/bin/dash
 
+
+usage="usage: shrug-branch [-d] <branch>"
+
 # Not a shrug repository
 if [ ! -d ".shrug" ]
 then
     echo "$0: error: no .shrug directory containing shrug repository exists" >>/dev/stderr
     exit 1
-# No commit yet
+# No Arguments
+elif [ $# -gt 2 ]
+then
+    echo "$usage"
+    exit 1
+fi
+# No commit
 elif [ ! -f .shrug/log ]
 then
     echo "$0: error: your repository does not have any commits yet" >>/dev/stderr
     exit 1
 fi
 
-usage="usage: shrug-branch [-d] <branch>"
 
-# Arguments
-if [ $# -gt 2 ]
-then
-    echo "$usage"
-    exit 1
-fi
 branch=""
 delete_flag=0
 for argv in $@
@@ -111,7 +113,6 @@ else
         fi
 
         mkdir ".shrug/branch/$branch"
-        # mkdir ".shrug/branch/$branch/working_dir"
         mkdir ".shrug/branch/$branch/commit"
         
         cp -r .shrug/commit .shrug/branch/$branch

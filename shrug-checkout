@@ -1,13 +1,25 @@
 #!/bin/dash
 
-if [ $# -ne 1 ] 
+# Not a shrug repository
+if [ ! -d ".shrug" ]
+then
+    echo "$0: error: no .shrug directory containing shrug repository exists" >>/dev/stderr
+    exit 1
+# No arguments
+elif [ $# -ne 1 ] 
 then
     echo "usage: shrug-checkout <branch>"
     exit 1
+# No commit
+elif [ ! -f ".shrug/log" ]
+then
+    echo "$0: error: your repository does not have any commits yet" >> /dev/stderr
+    exit 1;
 fi
 
+# Check if target branch exist
 branches=`shrug-branch`
-branch=""
+target_branch=""
 current_branch=`cat .shrug/current_branch`
 
 for br in $branches
@@ -18,13 +30,13 @@ do
     fi
 done
 
-if [ -z $branch ]
+if [ -z $target_branch ]
 then
     echo "$0: error: unknown branch '$1'" >>/dev/stderr
     exit 1
-elif [ "$branch" = "$current_branch" ]
+elif [ "$target_branch" = "$current_branch" ]
 then
-    echo "Already on '$branch'"
+    echo "Already on '$target_branch'"
     exit 0 
 fi
 
@@ -36,13 +48,13 @@ cp .shrug/log .shrug/branch/$current_branch
 
 # Check if target branch and current branch has different commit
 current_branch_commit=`(cd .shrug/branch/$current_branch ;find -type f -exec sha256sum {} \;) | sha256sum`
-target_branch_commit=`(cd .shrug/branch/$branch ;find -type f -exec sha256sum {} \;) | sha256sum`
+target_branch_commit=`(cd .shrug/branch/$target_branch ;find -type f -exec sha256sum {} \;) | sha256sum`
 
 # target branch commit = current branch commit
 if [ "$current_branch_commit" = "$target_branch_commit" ]
 then
-    echo "$branch" > .shrug/current_branch
-    echo "Switched to branch '$branch'"
+    echo "$target_branch" > .shrug/current_branch
+    echo "Switched to branch '$target_branch'"
     exit 0
 # target branch commit != current branch commit
 else
@@ -59,9 +71,9 @@ else
         exit 1
     fi
 
-    # Compare target branch commit with local index
-    target_commit_no=`find .shrug/branch/$branch/commit -mindepth 1 -type d -exec basename {} \; | sort | tail -1`
-    target_files=`find .shrug/branch/$branch/commit/$target_commit_no -type f -exec basename {} \;`
+    # Compare target branch commit with local index to see if any changed file
+    target_commit_no=`find .shrug/branch/$target_branch/commit -mindepth 1 -type d -exec basename {} \; | sort | tail -1`
+    target_files=`find .shrug/branch/$target_branch/commit/$target_commit_no -type f -exec basename {} \;`
     override=""
     for file in $target_files
     do
@@ -81,6 +93,7 @@ else
     fi
 
     local_tracked_files=`shrug-status | egrep -v "untracked" | cut -d " " -f1`
+    # Remove any files associated to current branch
     for file in $local_tracked_files
     do
         rm -rf $file
@@ -88,13 +101,15 @@ else
     done
     rm -rf .shrug/commit
     rm -rf .shrug/log
-    cp -r .shrug/branch/$branch/commit .shrug/
-    cp .shrug/branch/$branch/log .shrug/
+
+    # Add files associated to target branch
+    cp -r .shrug/branch/$target_branch/commit .shrug/
+    cp .shrug/branch/$target_branch/log .shrug/
     for file in $target_files
     do
         cp .shrug/commit/$target_commit_no/$file .
         cp .shrug/commit/$target_commit_no/$file .shrug/index
     done
-    echo "$branch" > .shrug/current_branch
-    echo "Switched to branch '$branch'"
+    echo "$target_branch" > .shrug/current_branch
+    echo "Switched to branch '$target_branch'"
 fi

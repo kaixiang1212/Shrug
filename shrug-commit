@@ -4,11 +4,6 @@ IFS="
 "
 
 # Constants
-commit_dir=".shrug/commit"
-index_dir=".shrug/index"
-log_file=".shrug/log"
-shrug_cmp="shrug-cmp"
-shrug_add="shrug-add"
 usage="usage: shrug-commit [-a] -m commit-message"
 
 # Check if .shrug exists
@@ -33,12 +28,10 @@ else
             shift
         elif echo $1 | egrep "^-a$" > /dev/null
         then
-            for file in `find $index_dir -type f`
+            for file in `find .shrug/index -type f`
             do
                 filename=`basename $file`
-                # echo "$filename"
-                `$shrug_add $filename`
-                # echo "update $file"
+                `shrug-add $filename`
             done
         else
             echo $usage
@@ -60,29 +53,27 @@ else
 fi
 
 last_commit_no="`find .shrug/commit -mindepth 1 -type d -exec basename {} \; | sort | tail -1`"
-# echo "$commit_no $msg" >> ".shrug/log.txt"
+# Not initial commit
 if [ ! $last_commit_no = "" ]
-then           # Not initial commit
-    differ=`$shrug_cmp "$index_dir" "$commit_dir/$last_commit_no" `
+then           
+    differ=`shrug-cmp ".shrug/index" ".shrug/commit/$last_commit_no" `
     if [ -n "$differ" ]
     then
         for line in $differ
         do
             file=` echo $line | cut -d " " -f2 `
         done
-        cp -r "$index_dir/." "$commit_dir/$commit_no"
-        echo "$commit_no $msg" >> "$log_file"
+        cp -r ".shrug/index/." ".shrug/commit/$commit_no"
+        echo "$commit_no $msg" >> ".shrug/log"
         echo "$commit_no" > .shrug/commit_no
         echo "Committed as commit $commit_no"
     else
         echo "nothing to commit"
     fi
-else                            # Initial commit
-    cp -r "$index_dir/." "$commit_dir/$commit_no"
-    echo "$commit_no $msg" >> "$log_file"
+# Initial commit
+else                            
+    cp -r ".shrug/index/." ".shrug/commit/$commit_no"
+    echo "$commit_no $msg" >> ".shrug/log"
     echo "$commit_no" > .shrug/commit_no
     echo "Committed as commit $commit_no"
 fi
-
-# cp -r ".shrug/index/." ".shrug/commit/$commit" &&
-# echo "Committed as commit $commit_no"

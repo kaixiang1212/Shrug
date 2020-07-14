@@ -5,13 +5,12 @@ IFS=" "
 usage="usage: shrug-rm [--force] [--cached] <filenames>"
 force_flag=0
 cached_flag=0
-log_file=".shrug/log"
 
 
 commit_no=""
 if [ -d .shrug/commit ]
 then
-    commit_no=`cat $log_file | tail -1 | cut -d " " -f1`
+    commit_no=`cat .shrug/log | tail -1 | cut -d " " -f1`
 fi
 
 

@@ -12,34 +12,36 @@ then
 fi
 
 while [ $1 ]
-do      #Start with not [-./] follow by more than 1 char : Optional : (.)
-    if echo $1 | egrep "^[^-./][A-Za-z0-9]*(.[A-Za-z0-9]+)*" > /dev/null # Valid Filename
+do
+    # Valid Filename
+    if echo $1 | egrep "^[^-./][A-Za-z0-9]*(.[A-Za-z0-9]+)*" > /dev/null 
     then
-        if [ -f $1 ]                                            # File Exists in working directory
+        # File Exists in working directory
+        if [ -f $1 ]                                            
         then
             if [ ! -d ".shrug/index" ]
             then
                 mkdir ".shrug/index"
             fi
             cp $1 ".shrug/index/"
-        elif [ -f ".shrug/index/$1" ]                           # File exist in index but not in working directory
+        # File exist in index but not in working directory
+        elif [ -f ".shrug/index/$1" ]                           
         then
             rm ".shrug/index/$1"
-        else                                                    # File not Exists
+        # File not Exists
+        else                                                    
             echo "$0: error: can not open '$1'" >> /dev/stderr
             exit 1
         fi
-    elif echo $1 | egrep "^(-)+[A-Za-z]*" > /dev/null           # Flag Specified
+    # Flag Specified
+    elif echo $1 | egrep "^(-)+[A-Za-z]*" > /dev/null           
     then
         echo "usage: shrug-add <filenames>"
         exit
+    # Other Cases (Invalid filename)
     else
-        echo "$0: error: invalid filename '$1'" >> /dev/stderr  # Other Cases (Invalid filename)
+        echo "$0: error: invalid filename '$1'" >> /dev/stderr  
         exit 1
     fi
     shift
 done
-
-
-# TODO: Unhandled cases
-# --
