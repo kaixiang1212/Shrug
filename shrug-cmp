@@ -7,7 +7,8 @@ IFS="
 # Check if .shrug exists
 if [ ! -d ".shrug" ]
 then
-    echo "$0: error: no .shrug directory containing shrug repository exists" >> /dev/stderr
+    echo "$0: error: no .shrug directory containing shrug repository exists" \
+        >> /dev/stderr
     exit 1;
 fi
 

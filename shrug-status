@@ -8,8 +8,10 @@ then
 fi
 
 # Files
-index_files="`find .shrug/index -maxdepth 1 -type f | rev | cut -d "/" -f1 | rev`"
-commit_files="`find .shrug/commit/$commit_no -maxdepth 1 -type f | rev | cut -d "/" -f1 | rev`"
+index_files="`find .shrug/index -maxdepth 1 -type f \
+                | rev | cut -d "/" -f1 | rev`"
+commit_files="`find .shrug/commit/$commit_no -maxdepth 1 -type f \
+                | rev | cut -d "/" -f1 | rev`"
 working_dir_files="`find . -maxdepth 1 -type f | rev | cut -d "/" -f1 | rev`"
 
 all_files=`echo "$index_files\n$commit_files\n$working_dir_files" | sort | uniq`
@@ -19,7 +21,8 @@ for file in $all_files
 do
     in_working_dir="`find . -maxdepth 1 -name "$file"`"
     in_index="`find .shrug/index -maxdepth 1 -name "$file" -type f`"
-    in_latest_commit="`find .shrug/commit/$commit_no -maxdepth 1 -name "$file" -type f`"
+    in_latest_commit="`find .shrug/commit/$commit_no -maxdepth 1 \
+                        -name "$file" -type f`"
 
     # ! working directory
     if [ -z "$in_working_dir" ]

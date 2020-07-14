@@ -6,7 +6,8 @@ usage="usage: shrug-branch [-d] <branch>"
 # Not a shrug repository
 if [ ! -d ".shrug" ]
 then
-    echo "$0: error: no .shrug directory containing shrug repository exists" >>/dev/stderr
+    echo "$0: error: no .shrug directory containing shrug repository exists" \
+        >>/dev/stderr
     exit 1
 # No Arguments
 elif [ $# -gt 2 ]
@@ -16,7 +17,8 @@ then
 # No commit
 elif [ ! -f .shrug/log ]
 then
-    echo "$0: error: your repository does not have any commits yet" >>/dev/stderr
+    echo "$0: error: your repository does not have any commits yet" \
+        >>/dev/stderr
     exit 1
 fi
 
@@ -67,7 +69,8 @@ then
         then
             echo "master"
         else
-            branches="`find .shrug/branch -mindepth 1 -maxdepth 1 -type d | sort `"
+            branches="`find .shrug/branch -mindepth 1 -maxdepth 1 -type d \
+                        | sort `"
             for branch in $branches
             do
                 branch=`basename $branch`

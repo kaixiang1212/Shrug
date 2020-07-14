@@ -9,7 +9,8 @@ usage="usage: shrug-commit [-a] -m commit-message"
 # Check if .shrug exists
 if [ ! -d ".shrug" ]
 then
-    echo "$0: error: no .shrug directory containing shrug repository exists" >> /dev/stderr
+    echo "$0: error: no .shrug directory containing shrug repository exists" \
+        >> /dev/stderr
     exit 1;
 fi
 
@@ -22,7 +23,8 @@ then
 else
     while [ $1 ]
     do 
-        if echo $1 | egrep "^-m$" > /dev/null && echo $2 | egrep -v "^-.+" > /dev/null
+        if echo $1 | egrep "^-m$" > /dev/null && echo $2 | egrep -v "^-.+" \
+            > /dev/null
         then
             msg=$2
             shift
@@ -52,7 +54,9 @@ else
     commit_no=$(($commit_no+1))
 fi
 
-last_commit_no="`find .shrug/commit -mindepth 1 -type d -exec basename {} \; | sort | tail -1`"
+last_commit_no="`find .shrug/commit -mindepth 1 -type d -exec basename {} \; \
+                | sort \
+                | tail -1`"
 # Not initial commit
 if [ ! $last_commit_no = "" ]
 then           
