@@ -3,7 +3,8 @@
 # Not a shrug repository
 if [ ! -d ".shrug" ]
 then
-    echo "$0: error: no .shrug directory containing shrug repository exists" >>/dev/stderr
+    echo "$0: error: no .shrug directory containing shrug repository exists" \
+        >>/dev/stderr
     exit 1
 # No arguments
 elif [ $# -ne 1 ] 
@@ -13,7 +14,8 @@ then
 # No commit
 elif [ ! -f ".shrug/log" ]
 then
-    echo "$0: error: your repository does not have any commits yet" >> /dev/stderr
+    echo "$0: error: your repository does not have any commits yet" \
+    >> /dev/stderr
     exit 1;
 fi
 
@@ -47,8 +49,12 @@ cp .shrug/log .shrug/branch/$current_branch
 
 
 # Check if target branch and current branch has different commit
-current_branch_commit=`(cd .shrug/branch/$current_branch ;find -type f -exec sha256sum {} \;) | sha256sum`
-target_branch_commit=`(cd .shrug/branch/$target_branch ;find -type f -exec sha256sum {} \;) | sha256sum`
+current_branch_commit=`(cd .shrug/branch/$current_branch ;\
+                        find -type f -exec sha256sum {} \;) \
+                        | sha256sum`
+target_branch_commit=`(cd .shrug/branch/$target_branch ;\
+                        find -type f -exec sha256sum {} \;) \
+                        | sha256sum`
 
 # target branch commit = current branch commit
 if [ "$current_branch_commit" = "$target_branch_commit" ]
@@ -62,7 +68,8 @@ else
     changes=`shrug-status | egrep "file changed|added to index|deleted"`
     if [ -n "$changes" ]
     then
-        echo "$0: error: Your changes to the following files would be overwritten by checkout:" >>/dev/stderr
+        echo "$0: error: Your changes to the following files would be overwritten by checkout:" \
+            >>/dev/stderr
         files=`echo $changes | cut -d " " -f1`
         for file in $files
         do
@@ -72,8 +79,12 @@ else
     fi
 
     # Compare target branch commit with local index to see if any changed file
-    target_commit_no=`find .shrug/branch/$target_branch/commit -mindepth 1 -type d -exec basename {} \; | sort | tail -1`
-    target_files=`find .shrug/branch/$target_branch/commit/$target_commit_no -type f -exec basename {} \;`
+    target_commit_no=`find .shrug/branch/$target_branch/commit -mindepth 1 \
+                        -type d -exec basename {} \; \
+                        | sort \
+                        | tail -1`
+    target_files=`find .shrug/branch/$target_branch/commit/$target_commit_no \
+                    -type f -exec basename {} \;`
     override=""
     for file in $target_files
     do
@@ -84,7 +95,8 @@ else
     done
     if [ -n "$override" ]
     then
-        echo "$0: error: Your changes to the following files would be overwritten by checkout:" >>/dev/stderr
+        echo "$0: error: Your changes to the following files would be overwritten by checkout:" \
+            >>/dev/stderr
         for file in $override
         do
             echo "$file" >>/dev/stderr
