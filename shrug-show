@@ -21,7 +21,7 @@ if echo $1 | egrep ":" > /dev/null; then
     commit=`echo $1 | cut -d ":" -f1`
     file=`echo $1 | cut -d ":" -f2`
 
-    if [ $commit ] && [ ! -d '$commit_dir/$commit' ]
+    if [ "$commit" ] && [ ! -d "$commit_dir/$commit" ]
     then
         echo "$0: error: unknown commit '$commit'" >> /dev/stderr
         exit 1

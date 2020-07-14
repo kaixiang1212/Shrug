@@ -77,7 +77,7 @@ then
         echo "nothing to commit"
     fi
 # Initial commit
-elif [ ! `find .shrug/index -type f` = "\n" ]
+elif [ ! "`find .shrug/index -type f`" = "\n" ]
 then
     cp -r ".shrug/index/." ".shrug/commit/$commit_no"
     echo "$commit_no $msg" >> ".shrug/log"
