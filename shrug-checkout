@@ -26,7 +26,7 @@ for br in $branches
 do
     if [ $br = $1 ]
     then
-        branch=$br
+        target_branch=$br
     fi
 done
 
