@@ -11,6 +11,9 @@ if [ ! -d ".shrug" ]; then
     echo "$0: error: no .shrug directory containing shrug repository exists" \
         >> /dev/stderr
     exit 1;
+elif [ $# -ne 1 ]; then
+    echo $usage >> /dev/stderr
+    exit 1
 fi
 
 # Check if argument is in the right format 
@@ -18,6 +21,11 @@ if echo $1 | egrep ":" > /dev/null; then
     commit=`echo $1 | cut -d ":" -f1`
     file=`echo $1 | cut -d ":" -f2`
 
+    if [ $commit ] && [ ! -d '$commit_dir/$commit' ]
+    then
+        echo "$0: error: unknown commit '$commit'" >> /dev/stderr
+        exit 1
+    fi
     # Check filename
     if echo $file | egrep "^[\.-]" > /dev/null \
         || echo $file | egrep -v "^[A-Za-z\.0-9-]+$" > /dev/null;
@@ -50,6 +58,6 @@ if echo $1 | egrep ":" > /dev/null; then
         exit 1
     fi
 else
-    echo $usage
+    echo "$0: error: invalid object $1" >> /dev/stderr
     exit 1
 fi

@@ -17,7 +17,7 @@ fi
 # Check argument number
 if [ $# -lt 2 ]
 then
-    echo $usage
+    echo $usage >> /dev/stderr
     exit 1
 # Process Arguments
 else
@@ -36,7 +36,7 @@ else
                 `shrug-add $filename`
             done
         else
-            echo $usage
+            echo $usage >> /dev/stderr
             exit 1
         fi
         shift
@@ -44,11 +44,13 @@ else
 fi
 
 # Check if repo has previous commit
-commit_no=0
 if [ ! -f .shrug/commit_no ]
 then
-    mkdir .shrug/commit
-    echo $commit_no > .shrug/commit_no
+    if [ ! -d .shrug/commit ]
+    then
+        mkdir .shrug/commit
+    fi
+    commit_no=0
 else
     commit_no=`cat .shrug/commit_no`
     commit_no=$(($commit_no+1))
@@ -75,9 +77,12 @@ then
         echo "nothing to commit"
     fi
 # Initial commit
-else                            
+elif [ ! `find .shrug/index -type f` = "\n" ]
+then
     cp -r ".shrug/index/." ".shrug/commit/$commit_no"
     echo "$commit_no $msg" >> ".shrug/log"
     echo "$commit_no" > .shrug/commit_no
     echo "Committed as commit $commit_no"
+else 
+    echo "nothing to commit"
 fi

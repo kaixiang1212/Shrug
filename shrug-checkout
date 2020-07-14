@@ -9,7 +9,7 @@ then
 # No arguments
 elif [ $# -ne 1 ] 
 then
-    echo "usage: shrug-checkout <branch>"
+    echo "usage: shrug-checkout <branch>" >> /dev/stderr
     exit 1
 # No commit
 elif [ ! -f ".shrug/log" ]

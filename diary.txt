@@ -1,3 +1,15 @@
-Date	Start	Stop	Activity	Comments
-1/7/20	22:00	03:30	Coding	Implemented subset 0
-2/7/20	18:00	20:45	Debugging	Passed all autotest for subset 0
+Date	Start	Stop	Activity	            Comments
+1/7/20	22:00	03:30	Coding	                Implemented subset 0
+2/7/20	18:00	20:45	Debugging	            Passed all autotest for subset 0
+3/7/20  16:00   17:00   Coding                  Implemented -a flag for shrug-commit
+3/7/20  18:00   22:00   Coding                  Implemented shrug-rm
+4/7/20  00:00   05:00   Debugging               Debug shrug-rm failing autotests
+5/7/20  22:00   23:20   Debugging               Fixed shrug-rm to pass subset1_13
+6/7/20  01:00   03:00   Coding                  Implemented shrug-status
+6/7/20  03:30   04:30   Debugging               Passed all test for subset 1
+6/7/20  14:00   16:00   Coding                  Stated implementing of shrug-branch
+6/7/20  18:00   21:00   Coding                  Code commenting and styling
+7/7/20  18:00   22:00   Debugging               Passed all autotests for shrug-branch
+8/7/20  00:00   04:00   Coding                  Started implementing shrug-checkout
+14/7/20 21:00   04:00   Debugging               Passed all autotests for shrug-checkout
+15/7/20 01:00   07:15   Testing and Debugging   Write tests and debug

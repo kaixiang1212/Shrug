@@ -3,7 +3,7 @@
 # Check if .shrug exists
 if [ $# -ne 0 ]
 then
-    echo "usage: shrug-init"
+    echo "usage: shrug-init" >> /dev/stderr
     exit 1
 elif [ -d ".shrug" ]
 then

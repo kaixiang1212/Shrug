@@ -12,7 +12,7 @@ then
 # No Arguments
 elif [ $# -gt 2 ]
 then
-    echo "$usage"
+    echo "$usage" >> /dev/stderr
     exit 1
 # No commit
 elif [ ! -f .shrug/log ]
@@ -34,7 +34,7 @@ do
     # Detect invalid flag
     elif echo $argv | egrep "^-" -q && echo $argv | egrep "^--.+" -q
     then
-        echo "$usage"
+        echo "$usage" >> /dev/stderr
         exit 1
     # Treat -- as nothing
     elif echo $argv | egrep "^--$" -q

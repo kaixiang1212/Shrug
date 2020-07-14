@@ -8,8 +8,8 @@ then
     exit 1;
 elif [ $# -eq 0 ]
 then
-    echo "usage: shrug-add <filenames>"
-    exit
+    echo "usage: shrug-add <filenames>" >> /dev/stderr
+    exit 1
 fi
 
 while [ $1 ]
@@ -37,8 +37,8 @@ do
     # Flag Specified
     elif echo $1 | egrep "^(-)+[A-Za-z]*" > /dev/null           
     then
-        echo "usage: shrug-add <filenames>"
-        exit
+        echo "usage: shrug-add <filenames>" >> /dev/stderr
+        exit 1
     # Other Cases (Invalid filename)
     else
         echo "$0: error: invalid filename '$1'" >> /dev/stderr  
